@@ -53,8 +53,43 @@ public final class Predicates {
             }
         };
     }
+    
+    public static Predicate like(final String expr, final Object value) {
+        return new Predicate() {
+            private String param;
+            public void init(AbstractSqlCreator creator) {
+                param = creator.allocateParameter();
+                creator.setParameter(param, value);
+            }
+            public String toSql() {
+                return String.format("%s like :%s", expr, param);
+            }
+        };
+    }
+    
+    public static Predicate isNull(final String expr) {
+    	return new Predicate() {
+            public void init(AbstractSqlCreator creator) {
+            }
+            public String toSql() {
+                return String.format("%s is null", expr);
+            }
+    	};
+    }
 
-
+    public static Predicate like(final String expr, final String value) {
+    	return new Predicate() {
+    		private String param;
+            public void init(AbstractSqlCreator creator) {
+                param = creator.allocateParameter();
+                creator.setParameter(param, value);
+            }
+            public String toSql() {
+                return String.format("%s like :%s", expr, param);
+            }
+    	};
+    }
+    
     /**
      * Adds an IN clause to a creator.
      *
@@ -152,6 +187,25 @@ public final class Predicates {
     public static ExistsPredicate exists(String table) {
         return new ExistsPredicateImpl(table);
     }
+    
+    /**
+     * Add a subQuery
+     * <pre>
+     * new SelectCreator()
+     * .column("name")
+     * .from("Emp e")
+     * .where(inSubQuery("e.employee_id")
+     * 			.column("s.supervisor_id"))
+     * 			.from("supervisor s")
+     * 			.where(in("s.department", values))
+     * 		 );
+     * </pre>
+     * @param table
+     * @return
+     */
+    public static SubQueryPredicate inSubQuery(String expr) {
+    	return new SubQueryPredicatesImpl("in", expr);
+    }
 
     /**
      * Adds a not equals clause to a creator.
@@ -173,7 +227,45 @@ public final class Predicates {
             }
         };
     }
+    
+    public static Predicate is(final String expr, final java.sql.Date value) { 
+        return new Predicate() {
+            private String param;
+            public void init(AbstractSqlCreator creator) {
+                param = creator.allocateParameter();
+                creator.setParameter(param, value);
+            }
+            public String toSql() {
+                return String.format("%s >= :%s and %s < DATEADD(d,1,:%s)", expr, param, expr, param);
+            }
+        };
+   }
 
+    public static Predicate before(final String expr, final java.sql.Date value) { 
+        return new Predicate() {
+            private String param;
+            public void init(AbstractSqlCreator creator) {
+                param = creator.allocateParameter();
+                creator.setParameter(param, value);
+            }
+            public String toSql() {
+                return String.format("%s < :%s", expr, param);
+            }
+        };
+   }
+    
+    public static Predicate after(final String expr, final java.sql.Date value) { 
+        return new Predicate() {
+            private String param;
+            public void init(AbstractSqlCreator creator) {
+                param = creator.allocateParameter();
+                creator.setParameter(param, value);
+            }
+            public String toSql() {
+                return String.format("%s > DATEADD(d,1,:%s)", expr, param);
+            }
+        };
+   }
 
     /**
      * Inverts the sense of the given child predicate. In SQL terms, this
@@ -213,7 +305,6 @@ public final class Predicates {
      *
      * public static Predicate neq(final String expr, final Object value) { ... }
      *
-     * public static Predicate isNull(String expr) { ... }
      * public static Predicate notNull(String expr) { ... }
      *
      *
@@ -221,7 +312,6 @@ public final class Predicates {
      *
      * public static Predicate eqIgnoreCase(String expr, Object) { ... }
      * public static Predicate neqIgnoreCase(final String expr, final Object value) { ... }
-     * public static Predicate like(String expr, String) { ... }
      * public static Predicate contains(final String expr, final String value) { ... }
      * public static Predicate startsWith(final String expr, final String value) { ... }
      *

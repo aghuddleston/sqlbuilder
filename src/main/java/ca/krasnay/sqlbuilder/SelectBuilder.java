@@ -84,7 +84,7 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
 
     private List<String> leftJoins = new ArrayList<String>();
 
-    private List<String> wheres = new ArrayList<String>();
+    private List<ConditionClause> wheres = new ArrayList<ConditionClause>();
 
     private List<String> groupBys = new ArrayList<String>();
 
@@ -227,6 +227,11 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
         }
         return this;
     }
+    
+    public SelectBuilder orderBy(String name, String direction) {
+    	orderBys.add(name + " " + (direction == null ? "" : direction));
+    	return this;
+    }
 
     @Override
     public String toString() {
@@ -246,7 +251,7 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
         appendList(sql, tables, " from ", ", ");
         appendList(sql, joins, " join ", " join ");
         appendList(sql, leftJoins, " left join ", " left join ");
-        appendList(sql, wheres, " where ", " and ");
+        appendConditionClause(sql, wheres, " where ", " ");
         appendList(sql, groupBys, " group by ", ", ");
         appendList(sql, havings, " having ", " and ");
         appendList(sql, unions, " union ", " union ");
@@ -274,7 +279,14 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
     }
 
     public SelectBuilder where(String expr) {
-        wheres.add(expr);
+    	ConditionClause cc = new ConditionClause("and", expr);
+        wheres.add(cc);
+        return this;
+    }
+    
+    public SelectBuilder or(String expr) {
+    	ConditionClause cc = new ConditionClause("or", expr);
+        wheres.add(cc);
         return this;
     }
 }

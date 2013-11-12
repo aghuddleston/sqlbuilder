@@ -54,6 +54,17 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
     public SelectCreator and(Predicate predicate) {
         return where(predicate);
     }
+    
+    public SelectCreator or(String expr) {
+    	builder.or(expr);
+    	return this;
+    }
+    
+    public SelectCreator or(Predicate predicate) {
+        predicate.init(this);
+        builder.or(predicate.toSql());
+        return this;
+    }
 
     @Override
     public SelectCreator clone() {
@@ -130,10 +141,50 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
         builder.join(join);
         return this;
     }
+    
+    public SelectCreator join(String join, List<?> values) {
+    	StringBuilder sb = new StringBuilder();
+
+        boolean first = true;
+        for (Object value : values) {
+            String param = allocateParameter();
+            setParameter(param, value);
+            if (!first) {
+                sb.append(", ");
+            }
+            sb.append(":").append(param);
+            first = false;
+        }
+    	
+    	String newJoin = String.format(join, sb.toString());
+    	builder.join(newJoin);
+    	
+    	return this;
+    }
 
     public SelectCreator leftJoin(String join) {
         builder.leftJoin(join);
         return this;
+    }
+    
+    public SelectCreator leftJoin(String join, List<?> values) {
+    	StringBuilder sb = new StringBuilder();
+
+        boolean first = true;
+        for (Object value : values) {
+            String param = allocateParameter();
+            setParameter(param, value);
+            if (!first) {
+                sb.append(", ");
+            }
+            sb.append(":").append(param);
+            first = false;
+        }
+    	
+    	String newJoin = String.format(join, sb.toString());
+    	builder.leftJoin(newJoin);
+    	
+    	return this;
     }
 
     public SelectCreator noWait() {
@@ -149,6 +200,11 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
     public SelectCreator orderBy(String name, boolean ascending) {
         builder.orderBy(name, ascending);
         return this;
+    }
+    
+    public SelectCreator orderBy(String name, String direction) {
+    	builder.orderBy(name, direction);
+    	return this;
     }
 
     /**
@@ -238,4 +294,50 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
 
         return this;
     }
+    
+    public SelectCreator whereSql(String expr, List<?> values) {
+    	StringBuilder sb = new StringBuilder();
+
+        boolean first = true;
+        for (Object value : values) {
+            String param = allocateParameter();
+            setParameter(param, value);
+            if (!first) {
+                sb.append(", ");
+            }
+            sb.append(":").append(param);
+            first = false;
+        }
+    	
+    	String newExpr = String.format(expr, sb.toString());
+    	builder.where(newExpr);
+    	
+    	return this;
+    }
+    
+    public SelectCreator andSql(String expr, List<?> values) {
+    	whereSql(expr, values);
+    	return this;
+    }
+    
+    public SelectCreator orSql(String expr, List<?> values) {
+    	StringBuilder sb = new StringBuilder();
+
+        boolean first = true;
+        for (Object value : values) {
+            String param = allocateParameter();
+            setParameter(param, value);
+            if (!first) {
+                sb.append(", ");
+            }
+            sb.append(":").append(param);
+            first = false;
+        }
+    	
+    	String newExpr = String.format(expr, sb.toString());
+    	builder.or(newExpr);
+    	
+    	return this;
+    }
+    
 }

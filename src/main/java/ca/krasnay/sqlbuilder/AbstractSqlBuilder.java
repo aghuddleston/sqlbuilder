@@ -37,5 +37,20 @@ public abstract class AbstractSqlBuilder {
             first = false;
         }
     }
+    
+    protected void appendConditionClause(StringBuilder sql, List<ConditionClause> list, String init, String sep) {
+
+        boolean first = true;
+
+        for (ConditionClause cc : list) {
+            if (first) {
+                sql.append(init);
+            } else {
+                sql.append(" ").append(cc.getCondition()).append(" ");
+            }
+            sql.append(cc.getExpr());
+            first = false;
+        }
+    }
 
 }
