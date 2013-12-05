@@ -34,7 +34,12 @@ public class SelectBuilderTest extends TestCase {
 
         sb = new SelectBuilder("Employee e").where("name like 'Bob%'").where("age > 37");
         assertEquals("select * from Employee e where name like 'Bob%' and age > 37", sb.toString());
+        
+        sb = new SelectBuilder("Employee e").where("name like 'Bob%'").and("age > 37");
+        assertEquals("select * from Employee e where name like 'Bob%' and age > 37", sb.toString());
 
+        sb = new SelectBuilder("Employee e").where("name like 'Bob%'").or("age > 37");
+        assertEquals("select * from Employee e where name like 'Bob%' or age > 37", sb.toString());
         //
         // Join clauses
         //

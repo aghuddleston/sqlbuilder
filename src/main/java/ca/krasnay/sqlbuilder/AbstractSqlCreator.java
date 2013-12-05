@@ -14,7 +14,9 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
  */
 public abstract class AbstractSqlCreator implements PreparedStatementCreator, Serializable  {
 
-    private int paramIndex;
+	private static final long serialVersionUID = 1L;
+
+	private int paramIndex;
 
     private ParameterizedPreparedStatementCreator ppsc = new ParameterizedPreparedStatementCreator();
 

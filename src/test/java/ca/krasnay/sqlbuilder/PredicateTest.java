@@ -1,9 +1,6 @@
 package ca.krasnay.sqlbuilder;
 
-import static ca.krasnay.sqlbuilder.Predicates.eq;
-import static ca.krasnay.sqlbuilder.Predicates.exists;
-import static ca.krasnay.sqlbuilder.Predicates.in;
-import static ca.krasnay.sqlbuilder.Predicates.not;
+import static ca.krasnay.sqlbuilder.Predicates.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,4 +89,24 @@ public class PredicateTest extends TestCase {
         assertEquals("Bob", sc.getPreparedStatementCreator().getParameterMap().get("param0"));
 
     }
+    
+    public void testLike() {
+    	SelectCreator sc = new SelectCreator()
+    	.column("*")
+    	.from("Emp")
+    	.where(like("name", "Bob"));
+    	
+        assertEquals("select * from Emp where name like :param0", sc.getBuilder().toString());
+        assertEquals("Bob", sc.getPreparedStatementCreator().getParameterMap().get("param0"));
+    }
+    
+    public void testIsNull() {
+    	SelectCreator sc = new SelectCreator()
+    	.column("*")
+    	.from("Emp")
+    	.where(isNull("birthday"));
+    	
+        assertEquals("select * from Emp where birthday is null", sc.getBuilder().toString());
+    }
+    
 }

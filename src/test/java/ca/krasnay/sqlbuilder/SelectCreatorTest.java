@@ -44,5 +44,24 @@ public class SelectCreatorTest extends TestCase {
         assertEquals("Moe", map.get("param2"));
 
     }
+    
+    public void testWhereOr() {
+    	
+        SelectCreator sc = new SelectCreator()
+        .column("*")
+        .from("Emp")
+        .whereEquals("name", "Larry")
+        .or("name = 'Curly'");
+
+        SelectBuilder builder = (SelectBuilder) getValue(sc, "builder");
+
+        assertEquals("select * from Emp where name = :param0 or name = 'Curly'", builder.toString());
+
+        ParameterizedPreparedStatementCreator ppsc = sc.getPreparedStatementCreator();
+
+        Map<String, Object> map = ppsc.getParameterMap();
+
+        assertEquals("Larry", map.get("param0"));
+   }
 
 }
